@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Quiz | LinuxLearn</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">LinuxLearn</a>
+
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <main class="container page-container">
+
+        <section class="section">
+            <a href="dashboard.html" class="back-link">
+                ← Back to dashboard
+            </a>
+
+            <h1 class="section-title" id="quizTitle">Linux Quiz</h1>
+
+            <p class="section-description">
+                Test what you have learned. You need at least 3 out of 5
+                correct answers to complete this module.
+            </p>
+        </section>
+
+
+        <!-- QUIZ QUESTIONS -->
+
+        <section class="card" id="quizContainer">
+
+            <div class="quiz-progress">
+                <span id="questionCount">Loading questions...</span>
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <button
+                id="submitQuizButton"
+                class="btn btn-primary btn-full"
+                disabled
+            >
+                Submit quiz
+            </button>
+
+            <p id="quizMessage"></p>
+
+        </section>
+
+
+        <!-- QUIZ RESULTS -->
+
+        <section class="card" id="resultsContainer" style="display: none;">
+
+            <h2>Your results</h2>
+
+            <h1 id="scoreDisplay"></h1>
+
+            <p id="resultMessage"></p>
+
+            <div id="answerReview"></div>
+
+            <div class="quiz-actions">
+
+                <button id="retryButton" class="btn btn-secondary">
+                    Try again
+                </button>
+
+                <button
+                    id="nextModuleButton"
+                    class="btn btn-primary"
+                    style="display: none;"
+                >
+                    Next module
+                </button>
+
+                <button
+                    id="dashboardButton"
+                    class="btn btn-accent"
+                >
+                    Back to dashboard
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/quiz.js"></script>
+
+</body>
+</html>

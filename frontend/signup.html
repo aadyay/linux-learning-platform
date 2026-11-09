@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | LinuxLearn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">LinuxLearn.</a>
+        <a href="login.html" class="btn btn-secondary">Log in</a>
+    </nav>
+
+    <main class="form-container">
+
+        <div class="form-card">
+
+            <h1 class="form-title">Start learning Linux.</h1>
+
+            <p class="form-subtitle">
+                Create your account and begin your Linux journey.
+            </p>
+
+            <form id="signupForm">
+
+                <div class="form-group">
+                    <label for="name">Full name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Enter your name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Create a password"
+                        minlength="6"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Create account
+                </button>
+
+                <p id="signupMessage"></p>
+
+            </form>
+
+            <div class="form-footer">
+                Already have an account?
+                <a href="login.html">Log in</a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+
+        const signupForm = document.getElementById("signupForm");
+
+        signupForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+
+            const message = document.getElementById("signupMessage");
+
+            try {
+
+                const result = await api.signup({
+                    name,
+                    email,
+                    password
+                });
+
+                message.className = "message message-success";
+                message.textContent = result.message;
+
+                signupForm.reset();
+
+            } catch (error) {
+
+                message.className = "message message-error";
+                message.textContent = error.message;
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>

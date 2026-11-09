@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Your Learning Journey | LinuxLearn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <!-- NAVIGATION -->
+
+    <nav class="navbar dashboard-navbar">
+
+        <a href="dashboard.html" class="logo">
+            LinuxLearn<span>.</span>
+        </a>
+
+        <div class="nav-links">
+            <a href="dashboard.html" class="active">My Journey</a>
+
+            <button class="btn btn-secondary" onclick="logout()">
+                Logout
+            </button>
+        </div>
+
+    </nav>
+
+
+    <main class="dashboard-main">
+
+
+        <!-- WELCOME SECTION -->
+
+        <section class="dashboard-hero">
+
+            <div class="hero-content">
+
+                <span class="eyebrow">
+                    YOUR LINUX ADVENTURE STARTS HERE
+                </span>
+
+                <h1>
+                    Welcome back,
+                    <span id="userName">Learner</span>.
+                </h1>
+
+                <p>
+                    Every command brings you one step closer to mastering Linux.
+                    Keep going!
+                </p>
+
+                <button
+                    class="btn btn-primary hero-button"
+                    id="continueButton"
+                >
+                    Continue learning →
+                </button>
+
+            </div>
+
+            <div class="hero-decoration">
+
+                <div class="hero-orbit orbit-one"></div>
+                <div class="hero-orbit orbit-two"></div>
+
+                <div class="hero-terminal">
+                    <span>●</span>
+                    <span>●</span>
+                    <span>●</span>
+
+                    <p>$ whoami</p>
+                    <p class="terminal-response">linux_learner</p>
+
+                    <p>$ <span class="terminal-cursor">_</span></p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- OVERALL PROGRESS -->
+
+        <section class="dashboard-overview">
+
+            <div class="overview-heading">
+
+                <div>
+                    <span class="eyebrow">YOUR PROGRESS</span>
+                    <h2>Look how far you've come.</h2>
+                </div>
+
+                <span class="overall-progress-label" id="progressText">
+                    0% completed
+                </span>
+
+            </div>
+
+
+            <div class="overall-progress-track">
+
+                <div
+                    class="overall-progress-fill"
+                    id="progressBar"
+                ></div>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+
+            <div class="dashboard-stats">
+
+                <div class="dashboard-stat">
+
+                    <span class="stat-icon">✦</span>
+
+                    <div>
+                        <p class="stat-label">Modules completed</p>
+                        <h3 id="completedCount">0</h3>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-stat">
+
+                    <span class="stat-icon">⌘</span>
+
+                    <div>
+                        <p class="stat-label">Total modules</p>
+                        <h3 id="totalModules">3</h3>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-stat">
+
+                    <span class="stat-icon">⚡</span>
+
+                    <div>
+                        <p class="stat-label">Average quiz score</p>
+                        <h3 id="totalScore">0%</h3>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <p class="progress-caption" id="scoreText">
+                Your learning journey is just beginning.
+            </p>
+
+        </section>
+
+
+        <!-- ROADMAP HEADING -->
+
+        <section class="roadmap-section">
+
+            <div class="roadmap-heading">
+
+                <div>
+                    <span class="eyebrow">THE LEARNING PATH</span>
+
+                    <h2>Your Linux roadmap</h2>
+
+                    <p>
+                        Follow the path, unlock new milestones and
+                        build your Linux skills one lesson at a time.
+                    </p>
+                </div>
+
+                <div class="roadmap-legend">
+
+                    <span>
+                        <i class="legend-dot completed-dot"></i>
+                        Completed
+                    </span>
+
+                    <span>
+                        <i class="legend-dot available-dot"></i>
+                        Available
+                    </span>
+
+                    <span>
+                        <i class="legend-dot locked-dot"></i>
+                        Locked
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ROADMAP WILL BE GENERATED BY JAVASCRIPT -->
+
+            <div class="roadmap-wrapper">
+
+                <div id="moduleContainer" class="roadmap-container">
+
+                    <p class="roadmap-loading">
+                        Preparing your learning journey...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- BOTTOM MOTIVATION SECTION -->
+
+        <section class="journey-footer">
+
+            <div>
+                <span class="eyebrow">KEEP EXPLORING</span>
+
+                <h2>Small steps. Powerful skills.</h2>
+
+                <p>
+                    Linux mastery isn't built in a day.
+                    It's built one command at a time.
+                </p>
+            </div>
+
+            <div class="footer-symbol">
+                &gt;_
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+
+</body>
+</html>

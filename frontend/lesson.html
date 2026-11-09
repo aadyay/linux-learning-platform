@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Learn Linux | LinuxLearn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">LinuxLearn</a>
+
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <button class="btn btn-secondary" onclick="logout()">
+                Logout
+            </button>
+        </div>
+    </nav>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="container page-container">
+
+        <!-- LESSON HEADER -->
+
+        <div class="section">
+
+            <a href="dashboard.html" class="back-link">
+                ← Back to dashboard
+            </a>
+
+            <h1 class="section-title" id="lessonTitle">
+                Loading lesson...
+            </h1>
+
+            <p class="section-description" id="lessonMission"></p>
+
+            <div class="lesson-progress-container">
+                <div class="lesson-progress-bar">
+                    <div id="lessonProgressBar"></div>
+                </div>
+
+                <p id="lessonProgressText">Your learning progress</p>
+            </div>
+
+        </div>
+
+
+        <!-- LESSON LAYOUT -->
+
+        <div class="lesson-layout">
+
+
+            <!-- LEFT: LEARNING STEPS -->
+
+            <section class="card lesson-steps">
+
+                <h2>Learning steps</h2>
+
+                <p class="section-description">
+                    Follow each step and complete the activities.
+                </p>
+
+                <div id="lessonSteps"></div>
+
+                <div class="lesson-navigation">
+
+                    <button
+                        id="previousButton"
+                        class="btn btn-secondary"
+                    >
+                        Previous
+                    </button>
+
+                    <button
+                        id="nextButton"
+                        class="btn btn-primary"
+                    >
+                        Next
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- RIGHT: LESSON CONTENT -->
+
+            <section class="lesson-content">
+
+
+                <!-- THEORY SECTION -->
+
+                <div class="card theory-card">
+
+                    <span class="status-label">
+                        THEORY
+                    </span>
+
+                    <h2>Understand the concept</h2>
+
+                    <p class="section-description">
+                        Learn the concepts before practising them in the terminal.
+                    </p>
+
+                    <div id="theoryContainer">
+
+                        <p>
+                            Loading lesson theory...
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- GUIDED LEARNING STEP -->
+
+                <div class="card">
+
+                    <span class="status-label" id="stepType">
+                        LEARN
+                    </span>
+
+                    <h2 id="stepTitle">
+                        Loading...
+                    </h2>
+
+                    <p id="stepText"></p>
+
+                    <div
+                        class="code-example"
+                        id="stepExample"
+                    ></div>
+
+                    <div
+                        id="stepHint"
+                        class="message"
+                    ></div>
+
+                    <button
+                        id="hintButton"
+                        class="btn btn-secondary"
+                    >
+                        Show hint
+                    </button>
+
+                    <button
+                        id="checkButton"
+                        class="btn btn-primary"
+                    >
+                        Check my command
+                    </button>
+
+                    <p id="stepFeedback"></p>
+
+                </div>
+
+
+                <!-- SIMULATED TERMINAL -->
+
+                <div class="card terminal-card">
+
+                    <div class="terminal-header">
+
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+
+                        <span>Linux Terminal</span>
+
+                    </div>
+
+                    <div class="terminal">
+
+                        <div
+                            id="terminalOutput"
+                            class="terminal-body"
+                        ></div>
+
+                        <form
+                            id="terminalForm"
+                            class="terminal-input-row"
+                        >
+
+                            <span class="terminal-prompt">$</span>
+
+                            <input
+                                type="text"
+                                id="terminalInput"
+                                class="terminal-input"
+                                placeholder="Type a Linux command..."
+                                autocomplete="off"
+                            >
+
+                        </form>
+
+                    </div>
+
+                    <p class="section-description">
+                        This is a simulated terminal for practising Linux commands.
+                        Commands do not run on your actual computer.
+                    </p>
+
+                </div>
+
+
+                <!-- CHALLENGE STATUS -->
+
+                <div class="card">
+
+                    <h3>Challenge status</h3>
+
+                    <p id="challengeStatus">
+                        Complete the challenge step to unlock your quiz.
+                    </p>
+
+                    <button
+                        id="quizButton"
+                        class="btn btn-accent"
+                        disabled
+                    >
+                        Take quiz
+                    </button>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/lesson.js"></script>
+
+</body>
+</html>

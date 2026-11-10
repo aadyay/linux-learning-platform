@@ -1,5 +1,5 @@
 import json
-from typing import List
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,10 +7,10 @@ from pydantic import BaseModel
 
 from database import create_tables, get_db_connection
 from auth import hash_password, verify_password, create_token, get_current_user
-from seed_data import seed_database
 
 app = FastAPI()
 
+# Allow the frontend page to call this backend (CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,18 +18,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Make the tables and fill them with lessons when the app starts
 create_tables()
-seed_database()
 
-PASS_MARK = 70
+# ---------------------------------------------------------
+# Lesson content lives in content.json (lessons, quizzes, setup guides).
+# The database only stores users and their progress.
+# ---------------------------------------------------------
+CONTENT_FILE = Path(__file__).parent / "content.json"
+with open(CONTENT_FILE, encoding="utf-8") as f:
+    CONTENT = json.load(f)
 
-# Commands we know. Used to say "command not found" for typos.
-KNOWN_COMMANDS = {
-    "pwd", "whoami", "date", "uname", "history", "ls", "cd", "clear",
-    "mkdir", "touch", "cp", "mv", "rm", "rmdir",
-    "cat", "head", "tail", "find", "echo",
-}
+SETUP_GUIDES = CONTENT["setupGuides"]
+MODULES = CONTENT["modules"]
+LESSONS = {lesson["id"]: lesson for lesson in CONTENT["lessons"]}
+QUESTIONS = CONTENT["questions"]  # keys are text, like "101"
+
+PASS_MARK = 3  # correct answers needed out of 5
 
 
 # ---------------- Request models ----------------
@@ -44,65 +48,81 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class CommandRequest(BaseModel):
-    command: str
-
-
-class AnswerItem(BaseModel):
-    question_id: int
-    selected: str
-
-
-class QuizSubmitRequest(BaseModel):
-    answers: List[AnswerItem]
+class QuizRequest(BaseModel):
+    answers: dict = {}
 
 
 # ---------------- Helper functions ----------------
-def get_module_statuses(conn, user_id):
-    # Module 1 is always unlocked. A module unlocks when the one before it is passed.
-    modules = conn.execute("SELECT id FROM modules ORDER BY position").fetchall()
-    passed_rows = conn.execute(
-        "SELECT module_id FROM module_progress WHERE user_id = ? AND passed = 1",
+def load_progress(user_id):
+    # Returns {lesson_id: {challenge_done, best_score, completed}} for this user
+    conn = get_db_connection()
+    rows = conn.execute(
+        "SELECT lesson_id, challenge_done, best_score, completed "
+        "FROM lesson_progress WHERE user_id = ?",
         (user_id,),
     ).fetchall()
-    passed = {row["module_id"] for row in passed_rows}
-
-    statuses = {}
-    previous_passed = True
-    for module in modules:
-        if module["id"] in passed:
-            statuses[module["id"]] = "completed"
-        elif previous_passed:
-            statuses[module["id"]] = "unlocked"
-        else:
-            statuses[module["id"]] = "locked"
-        previous_passed = module["id"] in passed
-    return statuses
+    conn.close()
+    return {row["lesson_id"]: dict(row) for row in rows}
 
 
-def check_module_open(conn, module_id, user_id):
-    # Stops with 404 if the module does not exist, 403 if it is locked
-    statuses = get_module_statuses(conn, user_id)
-    if module_id not in statuses:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Module not found")
-    if statuses[module_id] == "locked":
-        conn.close()
-        raise HTTPException(status_code=403, detail="This module is locked")
+def is_lesson_completed(progress, lesson_id):
+    return lesson_id in progress and progress[lesson_id]["completed"] == 1
 
 
-def get_open_lesson(conn, lesson_id, user_id):
-    lesson = conn.execute("SELECT * FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
-    if lesson is None:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Lesson not found")
-    check_module_open(conn, lesson["module_id"], user_id)
-    return lesson
+def is_module_completed(progress, module):
+    return all(is_lesson_completed(progress, lid) for lid in module["lesson_ids"])
 
 
-def clean_command(text):
-    # Remove extra spaces so "ls   -l" equals "ls -l"
-    return " ".join(text.strip().split())
+def get_module_status(progress, index):
+    # Module 1 is open. A module opens when the one before it is completed.
+    module = MODULES[index]
+    if is_module_completed(progress, module):
+        return "completed"
+    if index == 0 or is_module_completed(progress, MODULES[index - 1]):
+        return "unlocked"
+    return "locked"
+
+
+def get_lesson_status(progress, lesson_id):
+    if is_lesson_completed(progress, lesson_id):
+        return "completed"
+
+    # Find which module this lesson belongs to, and its position in it
+    for index, module in enumerate(MODULES):
+        if lesson_id in module["lesson_ids"]:
+            if get_module_status(progress, index) == "locked":
+                return "locked"
+            position = module["lesson_ids"].index(lesson_id)
+            if position == 0:
+                return "unlocked"
+            # Later lessons open when the lesson before them is completed
+            previous_id = module["lesson_ids"][position - 1]
+            if is_lesson_completed(progress, previous_id):
+                return "unlocked"
+            return "locked"
+    return "locked"
+
+
+def to_percent(raw_score, lesson_id):
+    total = len(QUESTIONS.get(str(lesson_id), []))
+    return round(raw_score * 100 / total) if total else 0
+
+
+def get_open_lesson(lesson_id, user_id):
+    # Stops with 404 if the lesson does not exist, 403 if it is locked
+    if lesson_id not in LESSONS:
+        raise HTTPException(status_code=404, detail="Lesson not found.")
+    progress = load_progress(user_id)
+    if get_lesson_status(progress, lesson_id) == "locked":
+        raise HTTPException(status_code=403, detail="This lesson is locked.")
+    return LESSONS[lesson_id]
+
+
+def find_module(module_id):
+    for module in MODULES:
+        if module["id"] == module_id:
+            return module
+    raise HTTPException(status_code=404, detail="Module not found.")
 
 
 # ---------------- Auth ----------------
@@ -130,7 +150,6 @@ def signup(data: SignupRequest):
     )
     conn.commit()
     conn.close()
-
     return {"message": "Account created successfully"}
 
 
@@ -154,268 +173,238 @@ def login(data: LoginRequest):
 # ---------------- Setup guides (public) ----------------
 @app.get("/setup-guides")
 def list_setup_guides():
-    conn = get_db_connection()
-    rows = conn.execute(
-        "SELECT id, title, difficulty FROM setup_guides ORDER BY rowid"
-    ).fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+    return [
+        {
+            "id": g["id"],
+            "title": g["title"],
+            "difficulty": g["difficulty"],
+            "description": g["description"],
+        }
+        for g in SETUP_GUIDES
+    ]
 
 
 @app.get("/setup-guides/{guide_id}")
 def get_setup_guide(guide_id: str):
-    conn = get_db_connection()
-    row = conn.execute("SELECT * FROM setup_guides WHERE id = ?", (guide_id,)).fetchone()
-    conn.close()
-
-    if row is None:
-        raise HTTPException(status_code=404, detail="Guide not found")
-
-    return {
-        "id": row["id"],
-        "title": row["title"],
-        "description": row["description"],
-        "steps": json.loads(row["steps_json"]),
-    }
+    for guide in SETUP_GUIDES:
+        if guide["id"] == guide_id:
+            return guide
+    raise HTTPException(status_code=404, detail="Setup guide not found.")
 
 
 # ---------------- Modules and lessons ----------------
 @app.get("/modules")
 def get_modules(current_user: dict = Depends(get_current_user)):
-    user_id = current_user["id"]
-    conn = get_db_connection()
-
-    statuses = get_module_statuses(conn, user_id)
-    done_rows = conn.execute(
-        "SELECT lesson_id FROM lesson_progress WHERE user_id = ? AND completed = 1",
-        (user_id,),
-    ).fetchall()
-    done = {row["lesson_id"] for row in done_rows}
-
-    modules = conn.execute(
-        "SELECT id, title, description FROM modules ORDER BY position"
-    ).fetchall()
+    progress = load_progress(current_user["id"])
 
     result = []
-    for module in modules:
-        status = statuses[module["id"]]
+    for index, module in enumerate(MODULES):
         lessons = []
-        # Locked modules send an empty lessons list
-        if status != "locked":
-            lesson_rows = conn.execute(
-                "SELECT id, title, type FROM lessons WHERE module_id = ? ORDER BY position",
-                (module["id"],),
-            ).fetchall()
-            for lesson in lesson_rows:
-                lessons.append({
-                    "id": lesson["id"],
-                    "title": lesson["title"],
-                    "type": lesson["type"],
-                    "completed": lesson["id"] in done,
-                })
+        raw_total = 0
+        question_total = 0
+
+        for lesson_id in module["lesson_ids"]:
+            raw = progress.get(lesson_id, {}).get("best_score")  # None if no quiz yet
+            raw_total += raw or 0
+            question_total += len(QUESTIONS.get(str(lesson_id), []))
+            lessons.append({
+                "id": lesson_id,
+                "title": LESSONS[lesson_id]["title"],
+                "status": get_lesson_status(progress, lesson_id),
+                "best_score": None if raw is None else to_percent(raw, lesson_id),
+            })
+
         result.append({
             "id": module["id"],
             "title": module["title"],
             "description": module["description"],
-            "status": status,
+            "status": get_module_status(progress, index),
+            "best_score": raw_total,
+            "total_questions": question_total,
             "lessons": lessons,
         })
-
-    conn.close()
     return result
 
 
 @app.get("/lessons/{lesson_id}")
 def get_lesson(lesson_id: int, current_user: dict = Depends(get_current_user)):
+    return get_open_lesson(lesson_id, current_user["id"])
+
+
+@app.post("/lessons/{lesson_id}/challenge-complete")
+def complete_challenge(lesson_id: int, current_user: dict = Depends(get_current_user)):
+    user_id = current_user["id"]
+    get_open_lesson(lesson_id, user_id)
+
     conn = get_db_connection()
-    lesson = get_open_lesson(conn, lesson_id, current_user["id"])
-
-    # The expected command is NOT selected here, so the frontend never sees it
-    steps = conn.execute(
-        "SELECT step_number, instruction, hint FROM steps WHERE lesson_id = ? ORDER BY step_number",
-        (lesson_id,),
-    ).fetchall()
-    conn.close()
-
-    result = {
-        "id": lesson["id"],
-        "module_id": lesson["module_id"],
-        "title": lesson["title"],
-        "type": lesson["type"],
-        "content": json.loads(lesson["content_json"]),
-        "steps": [dict(step) for step in steps],
-    }
-    if lesson["type"] == "interactive":
-        result["mission"] = lesson["mission"]
-    return result
-
-
-@app.post("/lessons/{lesson_id}/steps/{step_number}/check")
-def check_step(
-    lesson_id: int,
-    step_number: int,
-    data: CommandRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    conn = get_db_connection()
-    get_open_lesson(conn, lesson_id, current_user["id"])
-
-    step = conn.execute(
-        "SELECT expected_command, output, feedback FROM steps WHERE lesson_id = ? AND step_number = ?",
-        (lesson_id, step_number),
-    ).fetchone()
-    conn.close()
-
-    if step is None:
-        raise HTTPException(status_code=404, detail="Step not found")
-
-    typed = clean_command(data.command)
-    accepted = [clean_command(c) for c in step["expected_command"].split("|")]
-
-    if typed in accepted:
-        return {"correct": True, "output": step["output"], "feedback": step["feedback"]}
-
-    first_word = typed.split(" ")[0] if typed else ""
-    if first_word and first_word not in KNOWN_COMMANDS:
-        output = "bash: " + first_word + ": command not found"
-    else:
-        output = ""
-    return {
-        "correct": False,
-        "output": output,
-        "feedback": "Not quite. Check the command and try again.",
-    }
-
-
-@app.post("/lessons/{lesson_id}/complete")
-def complete_lesson(lesson_id: int, current_user: dict = Depends(get_current_user)):
-    conn = get_db_connection()
-    get_open_lesson(conn, lesson_id, current_user["id"])
-
     conn.execute(
-        "INSERT OR IGNORE INTO lesson_progress (user_id, lesson_id, completed) VALUES (?, ?, 1)",
-        (current_user["id"], lesson_id),
+        """INSERT INTO lesson_progress (user_id, lesson_id, challenge_done)
+           VALUES (?, ?, 1)
+           ON CONFLICT (user_id, lesson_id) DO UPDATE SET challenge_done = 1""",
+        (user_id, lesson_id),
     )
     conn.commit()
     conn.close()
-    return {"message": "Lesson completed"}
+    return {"message": "Challenge completed successfully.", "completed": True}
 
 
-# ---------------- Quizzes ----------------
-@app.get("/modules/{module_id}/quiz")
-def get_quiz(module_id: int, current_user: dict = Depends(get_current_user)):
-    conn = get_db_connection()
-    check_module_open(conn, module_id, current_user["id"])
+# ---------------- Lesson quizzes ----------------
+@app.get("/lessons/{lesson_id}/questions")
+def get_questions(lesson_id: int, current_user: dict = Depends(get_current_user)):
+    get_open_lesson(lesson_id, current_user["id"])
 
-    # The correct option is NOT selected here
-    rows = conn.execute(
-        "SELECT id, question, option_a, option_b, option_c, option_d FROM questions WHERE module_id = ? ORDER BY id",
-        (module_id,),
-    ).fetchall()
-    conn.close()
+    questions = QUESTIONS.get(str(lesson_id))
+    if not questions:
+        raise HTTPException(status_code=404, detail="Questions not found.")
 
-    if not rows:
-        raise HTTPException(status_code=404, detail="This module has no quiz yet")
-
-    questions = []
-    for row in rows:
-        questions.append({
-            "id": row["id"],
-            "question": row["question"],
-            "options": {
-                "a": row["option_a"],
-                "b": row["option_b"],
-                "c": row["option_c"],
-                "d": row["option_d"],
-            },
-        })
-    return {"module_id": module_id, "pass_mark": PASS_MARK, "questions": questions}
+    # Only send the question and options. The correct answer stays on the server.
+    return [
+        {"id": q["id"], "question": q["question"], "options": q["options"]}
+        for q in questions
+    ]
 
 
-@app.post("/modules/{module_id}/quiz/submit")
+@app.post("/lessons/{lesson_id}/quiz")
 def submit_quiz(
-    module_id: int,
-    data: QuizSubmitRequest,
+    lesson_id: int,
+    data: QuizRequest,
     current_user: dict = Depends(get_current_user),
 ):
     user_id = current_user["id"]
-    conn = get_db_connection()
-    check_module_open(conn, module_id, user_id)
+    get_open_lesson(lesson_id, user_id)
 
-    questions = conn.execute(
-        "SELECT id, correct_option, explanation FROM questions WHERE module_id = ? ORDER BY id",
-        (module_id,),
-    ).fetchall()
+    questions = QUESTIONS.get(str(lesson_id))
     if not questions:
-        conn.close()
-        raise HTTPException(status_code=404, detail="This module has no quiz yet")
+        raise HTTPException(status_code=404, detail="Quiz not found.")
 
-    given = {a.question_id: a.selected.strip().lower() for a in data.answers}
+    progress = load_progress(user_id)
+    lesson_progress = progress.get(lesson_id, {})
+    if not lesson_progress.get("challenge_done"):
+        raise HTTPException(
+            status_code=400,
+            detail="Complete the lesson challenge before taking the quiz.",
+        )
 
+    # Mark the answers
+    score = 0
     results = []
-    correct_count = 0
     for q in questions:
-        is_correct = given.get(q["id"]) == q["correct_option"]
+        selected = data.answers.get(str(q["id"]))
+        try:
+            selected = int(selected)
+        except (TypeError, ValueError):
+            selected = None
+
+        is_correct = selected == q["correct_option"]
         if is_correct:
-            correct_count += 1
+            score += 1
+
         results.append({
             "question_id": q["id"],
-            "correct": is_correct,
+            "selected_option": selected,
             "correct_option": q["correct_option"],
+            "is_correct": is_correct,
             "explanation": q["explanation"],
         })
 
-    score = round(correct_count * 100 / len(questions))
     passed = score >= PASS_MARK
-    next_module_unlocked = False
 
-    if passed:
-        conn.execute(
-            """INSERT INTO module_progress (user_id, module_id, score, passed)
-               VALUES (?, ?, ?, 1)
-               ON CONFLICT (user_id, module_id) DO UPDATE SET score = excluded.score, passed = 1""",
-            (user_id, module_id, score),
-        )
-        conn.commit()
-        next_module = conn.execute(
-            """SELECT id FROM modules
-               WHERE position > (SELECT position FROM modules WHERE id = ?)
-               ORDER BY position LIMIT 1""",
-            (module_id,),
-        ).fetchone()
-        next_module_unlocked = next_module is not None
+    # Keep only the best score. Once completed, a lesson stays completed.
+    best = max(lesson_progress.get("best_score") or 0, score)
+    completed = 1 if (passed or lesson_progress.get("completed") == 1) else 0
 
+    conn = get_db_connection()
+    conn.execute(
+        "UPDATE lesson_progress SET best_score = ?, completed = ? "
+        "WHERE user_id = ? AND lesson_id = ?",
+        (best, completed, user_id, lesson_id),
+    )
+    conn.commit()
     conn.close()
+
+    return {"score": score, "total": len(questions), "passed": passed, "results": results}
+
+
+# ---------------- Module and final assessments (placeholders) ----------------
+@app.get("/modules/{module_id}/assessment/questions")
+def get_assessment_questions(module_id: int, current_user: dict = Depends(get_current_user)):
+    module = find_module(module_id)
+    progress = load_progress(current_user["id"])
+    if not is_module_completed(progress, module):
+        raise HTTPException(status_code=403, detail="Complete all lessons first.")
+    return [{
+        "id": 1,
+        "question": "Which topic did this module teach you?",
+        "options": [
+            "A topic from this module",
+            "A topic from another course",
+            "None of these",
+            "All commands are identical",
+        ],
+    }]
+
+
+@app.post("/modules/{module_id}/assessment")
+def submit_assessment(module_id: int, current_user: dict = Depends(get_current_user)):
+    module = find_module(module_id)
+    progress = load_progress(current_user["id"])
+    if not is_module_completed(progress, module):
+        raise HTTPException(status_code=403, detail="Complete all lessons first.")
+    return {"passed": True, "score": 1, "total": 1, "message": "Module assessment completed."}
+
+
+@app.get("/final-assessment")
+def get_final_assessment(current_user: dict = Depends(get_current_user)):
+    progress = load_progress(current_user["id"])
+    if not all(is_module_completed(progress, m) for m in MODULES):
+        raise HTTPException(status_code=403, detail="Complete all modules first.")
     return {
-        "score": score,
-        "passed": passed,
-        "next_module_unlocked": next_module_unlocked,
-        "results": results,
+        "title": "Linux Workspace Challenge",
+        "instructions": "Create and organize a project workspace using the commands learned throughout the course.",
     }
+
+
+@app.post("/final-assessment/submit")
+def submit_final_assessment(current_user: dict = Depends(get_current_user)):
+    progress = load_progress(current_user["id"])
+    if not all(is_module_completed(progress, m) for m in MODULES):
+        raise HTTPException(status_code=403, detail="Complete all modules first.")
+    return {"completed": True, "message": "Final assessment submitted."}
 
 
 # ---------------- Progress ----------------
 @app.get("/progress")
 def get_progress(current_user: dict = Depends(get_current_user)):
-    user_id = current_user["id"]
-    conn = get_db_connection()
+    progress = load_progress(current_user["id"])
 
-    total_lessons = conn.execute("SELECT COUNT(*) FROM lessons").fetchone()[0]
-    total_modules = conn.execute("SELECT COUNT(*) FROM modules").fetchone()[0]
-    completed_lessons = conn.execute(
-        "SELECT COUNT(*) FROM lesson_progress WHERE user_id = ? AND completed = 1", (user_id,)
-    ).fetchone()[0]
-    completed_modules = conn.execute(
-        "SELECT COUNT(*) FROM module_progress WHERE user_id = ? AND passed = 1", (user_id,)
-    ).fetchone()[0]
-    conn.close()
+    all_ids = [lid for module in MODULES for lid in module["lesson_ids"]]
+    completed_ids = [lid for lid in all_ids if is_lesson_completed(progress, lid)]
 
-    percentage = round(completed_lessons * 100 / total_lessons) if total_lessons else 0
+    best_scores = {}   # {"101": 80}  (percentages)
+    total_score = 0
+    for lid in all_ids:
+        raw = progress.get(lid, {}).get("best_score")
+        if raw is not None:
+            best_scores[str(lid)] = to_percent(raw, lid)
+            total_score += raw
+
+    # The first lesson that is open but not finished
+    continue_id = None
+    for lid in all_ids:
+        if get_lesson_status(progress, lid) == "unlocked":
+            continue_id = lid
+            break
+
+    percentage = round(len(completed_ids) * 100 / len(all_ids)) if all_ids else 0
+
     return {
         "name": current_user["name"],
-        "completed_lessons": completed_lessons,
-        "total_lessons": total_lessons,
-        "completed_modules": completed_modules,
-        "total_modules": total_modules,
+        "completed_lessons": completed_ids,
+        "total_lessons": len(all_ids),
+        "completed_modules": sum(1 for m in MODULES if is_module_completed(progress, m)),
+        "total_modules": len(MODULES),
         "percentage": percentage,
+        "best_scores": best_scores,
+        "total_score": total_score,
+        "continue_lesson_id": continue_id,
     }

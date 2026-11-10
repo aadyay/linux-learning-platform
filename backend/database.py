@@ -1,10 +1,12 @@
 import sqlite3
 
+# The file where users and their progress are saved
 DATABASE_FILE = "linux_learning.db"
 
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_FILE)
+    # Lets us read a row by column name, like row["email"]
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
@@ -13,6 +15,7 @@ def get_db_connection():
 def create_tables():
     conn = get_db_connection()
 
+    # One row per person who signs up
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,6 +25,7 @@ def create_tables():
         )
     """)
 
+    # Remembers who is logged in (one row per token)
     conn.execute("""
         CREATE TABLE IF NOT EXISTS sessions (
             token TEXT PRIMARY KEY,
@@ -31,95 +35,17 @@ def create_tables():
         )
     """)
 
-    # Installation guides (wsl, virtualbox, dual-boot). Steps are saved as JSON text.
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS setup_guides (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            difficulty TEXT NOT NULL,
-            description TEXT,
-            steps_json TEXT NOT NULL
-        )
-    """)
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS modules (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            position INTEGER NOT NULL
-        )
-    """)
-
-    # type is "reading" or "interactive". content_json holds the lesson text.
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS lessons (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            module_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            type TEXT NOT NULL,
-            content_json TEXT NOT NULL,
-            mission TEXT,
-            position INTEGER NOT NULL,
-            FOREIGN KEY (module_id) REFERENCES modules (id)
-        )
-    """)
-
-    # Practice terminal steps. expected_command is NEVER sent to the frontend.
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS steps (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            lesson_id INTEGER NOT NULL,
-            step_number INTEGER NOT NULL,
-            instruction TEXT NOT NULL,
-            hint TEXT,
-            expected_command TEXT NOT NULL,
-            output TEXT,
-            feedback TEXT,
-            UNIQUE (lesson_id, step_number),
-            FOREIGN KEY (lesson_id) REFERENCES lessons (id)
-        )
-    """)
-
-    # One quiz per module
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS questions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            module_id INTEGER NOT NULL,
-            question TEXT NOT NULL,
-            option_a TEXT NOT NULL,
-            option_b TEXT NOT NULL,
-            option_c TEXT NOT NULL,
-            option_d TEXT NOT NULL,
-            correct_option TEXT NOT NULL,
-            explanation TEXT,
-            FOREIGN KEY (module_id) REFERENCES modules (id)
-        )
-    """)
-
+    # One row per user per lesson: challenge done? best quiz score? completed?
     conn.execute("""
         CREATE TABLE IF NOT EXISTS lesson_progress (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             lesson_id INTEGER NOT NULL,
+            challenge_done INTEGER DEFAULT 0,
+            best_score INTEGER,
             completed INTEGER DEFAULT 0,
             UNIQUE (user_id, lesson_id),
-            FOREIGN KEY (user_id) REFERENCES users (id),
-            FOREIGN KEY (lesson_id) REFERENCES lessons (id)
-        )
-    """)
-
-    # A row here with passed = 1 means the module quiz was passed
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS module_progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            module_id INTEGER NOT NULL,
-            score INTEGER,
-            passed INTEGER DEFAULT 0,
-            UNIQUE (user_id, module_id),
-            FOREIGN KEY (user_id) REFERENCES users (id),
-            FOREIGN KEY (module_id) REFERENCES modules (id)
+            FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
 

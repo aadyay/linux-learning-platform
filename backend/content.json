@@ -1,0 +1,1832 @@
+{
+  "setupGuides": [
+    {
+      "id": "wsl",
+      "title": "Install Ubuntu using WSL",
+      "difficulty": "Beginner",
+      "description": "Run a Linux environment inside Windows without replacing Windows.",
+      "steps": [
+        {
+          "step_number": 1,
+          "heading": "Check your Windows version",
+          "instructions": "Use a supported, updated Windows 10 or Windows 11 installation. Save your work before changing system settings.",
+          "warning": null
+        },
+        {
+          "step_number": 2,
+          "heading": "Open PowerShell as Administrator",
+          "instructions": "Open the Start menu, search for PowerShell or Windows Terminal, right-click it and choose Run as administrator.",
+          "warning": "Only run installation commands from a trusted source."
+        },
+        {
+          "step_number": 3,
+          "heading": "Install WSL",
+          "instructions": "Run: wsl --install. Follow any prompts and restart Windows if asked.",
+          "warning": "The exact prompts can vary by Windows version and system configuration."
+        },
+        {
+          "step_number": 4,
+          "heading": "Open Ubuntu",
+          "instructions": "After installation, open Ubuntu from the Start menu. Allow the first-time setup to finish."
+        },
+        {
+          "step_number": 5,
+          "heading": "Create your Linux account",
+          "instructions": "Choose a Linux username and password. When typing the password, the terminal may not show characters; this is normal."
+        },
+        {
+          "step_number": 6,
+          "heading": "Update package information",
+          "instructions": "In Ubuntu, run: sudo apt update. Enter your Linux password if requested."
+        },
+        {
+          "step_number": 7,
+          "heading": "Verify your installation",
+          "instructions": "Try: whoami, pwd, uname -a and ls. If these commands return information, your Ubuntu terminal is ready."
+        }
+      ]
+    },
+    {
+      "id": "virtualbox",
+      "title": "Install Ubuntu using VirtualBox",
+      "difficulty": "Intermediate",
+      "description": "Run Ubuntu in a virtual machine while keeping your existing operating system.",
+      "steps": [
+        {
+          "step_number": 1,
+          "heading": "Prepare your computer",
+          "instructions": "Check available storage and memory. Back up important files before making system-level changes."
+        },
+        {
+          "step_number": 2,
+          "heading": "Get trusted installers",
+          "instructions": "Download VirtualBox from its official website and the Ubuntu Desktop ISO from Ubuntu's official website."
+        },
+        {
+          "step_number": 3,
+          "heading": "Create a virtual machine",
+          "instructions": "In VirtualBox, create a new Linux virtual machine and select the Ubuntu ISO as its installation image."
+        },
+        {
+          "step_number": 4,
+          "heading": "Allocate resources",
+          "instructions": "Choose memory, CPU and virtual disk settings that fit your computer. Avoid allocating all available resources."
+        },
+        {
+          "step_number": 5,
+          "heading": "Install Ubuntu",
+          "instructions": "Start the virtual machine and follow the Ubuntu installer. Review disk choices carefully; install inside the virtual disk, not your physical Windows drive."
+        },
+        {
+          "step_number": 6,
+          "heading": "Verify Ubuntu",
+          "instructions": "Open Terminal and run whoami, pwd and uname -a."
+        }
+      ]
+    },
+    {
+      "id": "dual-boot",
+      "title": "Install Linux using Dual Boot",
+      "difficulty": "Advanced",
+      "description": "Install Linux alongside an existing operating system and choose one when the computer starts.",
+      "steps": [
+        {
+          "step_number": 1,
+          "heading": "Understand the risks",
+          "instructions": "Dual boot changes disk partitions and boot configuration. A mistake can cause data loss or make an operating system unbootable.",
+          "warning": "Back up important data first. This guide is educational, not a substitute for device-specific instructions."
+        },
+        {
+          "step_number": 2,
+          "heading": "Check compatibility",
+          "instructions": "Check your computer manufacturer's documentation, firmware mode, storage layout and Ubuntu's current installation guidance."
+        },
+        {
+          "step_number": 3,
+          "heading": "Prepare installation media",
+          "instructions": "Use the official Ubuntu ISO and a trusted tool to create a bootable USB drive."
+        },
+        {
+          "step_number": 4,
+          "heading": "Review disk layout",
+          "instructions": "Understand partitions and available unallocated space before proceeding. Do not delete or format a partition unless you know exactly what it contains.",
+          "warning": "Stop and seek expert help if you are unsure which partition is which."
+        },
+        {
+          "step_number": 5,
+          "heading": "Follow the official installer",
+          "instructions": "Use the current Ubuntu installation guide for your firmware and disk configuration. Review every disk and bootloader choice before confirming."
+        },
+        {
+          "step_number": 6,
+          "heading": "Test both operating systems",
+          "instructions": "Restart and verify that you can boot into both operating systems. Keep your recovery and backup options available."
+        }
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": 101,
+      "module_id": 1,
+      "title": "What is Linux?",
+      "objective": "Understand Linux, operating systems and Linux distributions.",
+      "estimated_minutes": 15,
+      "mission": "Understand Linux, operating systems and Linux distributions.",
+      "theory": [
+        {
+          "heading": "What is an operating system?",
+          "content": "An operating system (OS) is system software that manages computer hardware and provides services for applications. It helps programs use the CPU, memory, storage and input/output devices.",
+          "key_points": [
+            "The OS manages hardware resources.",
+            "Applications run with the help of the OS.",
+            "Windows, macOS and Linux-based systems are examples."
+          ]
+        },
+        {
+          "heading": "What is Linux?",
+          "content": "Linux is technically an open-source operating system kernel. A complete Linux-based operating system combines the kernel with system tools, libraries and applications. These complete systems are commonly called Linux distributions.",
+          "key_points": [
+            "Linux is open source.",
+            "The kernel manages communication between software and hardware.",
+            "Linux is used on desktops, servers, embedded devices and more."
+          ]
+        },
+        {
+          "heading": "What is a distribution?",
+          "content": "A Linux distribution packages the Linux kernel with software, tools and a package manager. Ubuntu, Fedora and Debian are examples. They share the Linux kernel but differ in defaults, release policies and tools.",
+          "key_points": [
+            "Ubuntu is a distribution, not a separate kernel.",
+            "Different distributions suit different needs.",
+            "This course uses Ubuntu examples."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Understand the environment",
+          "text": "A Linux system includes the kernel, system utilities, applications and a way for users to interact with it.",
+          "example_command": "uname -s",
+          "example_output": "Linux",
+          "hint": "uname -s displays the operating-system kernel name."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Identify the system",
+          "text": "Run uname -s in the practice terminal.",
+          "example_command": "uname -s",
+          "example_output": "Linux",
+          "command_to_try": "uname -s",
+          "check": {
+            "type": "ran_command",
+            "value": "uname"
+          },
+          "hint": "Use uname to display system information."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Identify your user",
+          "text": "Find out which user is currently using the terminal.",
+          "example_command": "whoami",
+          "example_output": "user",
+          "command_to_try": "whoami",
+          "check": {
+            "type": "ran_command",
+            "value": "whoami"
+          },
+          "hint": "The command name is a question: who am I?"
+        }
+      ],
+      "challenge": {
+        "title": "Identify your Linux environment",
+        "instructions": "Run whoami in the practice terminal.",
+        "check": {
+          "type": "ran_command",
+          "value": "whoami"
+        }
+      }
+    },
+    {
+      "id": 102,
+      "module_id": 1,
+      "title": "Linux Distributions",
+      "objective": "Compare distributions and understand why Ubuntu is used in this course.",
+      "estimated_minutes": 15,
+      "mission": "Compare distributions and understand why Ubuntu is used in this course.",
+      "theory": [
+        {
+          "heading": "Why are there different distributions?",
+          "content": "Different distributions select different software, desktop environments, package managers and update policies. This lets users choose a system that fits their needs.",
+          "key_points": [
+            "Distributions share the Linux kernel family.",
+            "They may use different package managers.",
+            "Some prioritize stability while others prioritize newer software."
+          ]
+        },
+        {
+          "heading": "Ubuntu, Debian and Fedora",
+          "content": "Ubuntu is based on Debian and commonly uses APT for packages. Debian is known for its focus on stability. Fedora is associated with newer technologies and uses DNF.",
+          "key_points": [
+            "Ubuntu and Debian use APT tools.",
+            "Fedora uses DNF.",
+            "Commands can differ between distributions."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Choose a distribution",
+          "text": "Ubuntu is a common beginner choice and has extensive documentation. The examples in this platform are Ubuntu-oriented.",
+          "example_command": "cat /etc/os-release",
+          "example_output": "NAME=\"Ubuntu\"",
+          "hint": "This file contains operating-system identification information."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Inspect system information",
+          "text": "Try the system identification command.",
+          "example_command": "uname -a",
+          "example_output": "Linux user ...",
+          "command_to_try": "uname -a",
+          "check": {
+            "type": "ran_command",
+            "value": "uname"
+          },
+          "hint": "The -a option asks uname to show available system information."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Check your current user",
+          "text": "Run whoami to identify the active account.",
+          "example_command": "whoami",
+          "example_output": "user",
+          "command_to_try": "whoami",
+          "check": {
+            "type": "ran_command",
+            "value": "whoami"
+          },
+          "hint": "Use whoami."
+        }
+      ],
+      "challenge": {
+        "title": "Check the active account",
+        "instructions": "Run whoami.",
+        "check": {
+          "type": "ran_command",
+          "value": "whoami"
+        }
+      }
+    },
+    {
+      "id": 103,
+      "module_id": 1,
+      "title": "Terminal and Shell",
+      "objective": "Understand the terminal, shell, command syntax and command options.",
+      "estimated_minutes": 15,
+      "mission": "Understand the terminal, shell, command syntax and command options.",
+      "theory": [
+        {
+          "heading": "Terminal vs shell",
+          "content": "A terminal is the interface where you type and view text. A shell is the program that reads commands and asks the operating system to carry them out. Bash is a commonly used shell on Ubuntu.",
+          "key_points": [
+            "Terminal = interface.",
+            "Shell = command interpreter.",
+            "Bash is one example of a shell."
+          ]
+        },
+        {
+          "heading": "Command structure",
+          "content": "A command commonly has a command name followed by options and arguments. For example, ls -l /home asks ls to show a detailed listing of /home. Linux paths and command names are generally case-sensitive.",
+          "key_points": [
+            "Command: what to run.",
+            "Option: changes how it behaves.",
+            "Argument: the item it acts on.",
+            "Uppercase and lowercase can mean different things."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Read a command",
+          "text": "In ls -l /home, ls is the command, -l is an option and /home is an argument.",
+          "example_command": "ls -l",
+          "example_output": "drwxr-xr-x ... docs",
+          "hint": "Options often begin with a hyphen."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Run a command",
+          "text": "Use ls to list the current directory.",
+          "example_command": "ls",
+          "example_output": "docs notes.txt",
+          "command_to_try": "ls",
+          "check": {
+            "type": "ran_command",
+            "value": "ls"
+          },
+          "hint": "Type ls."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Use a command option",
+          "text": "Display a detailed listing.",
+          "example_command": "ls -l",
+          "example_output": "drwxr-xr-x ... docs",
+          "command_to_try": "ls -l",
+          "check": {
+            "type": "ran_command",
+            "value": "ls -l"
+          },
+          "hint": "Add the -l option to ls."
+        }
+      ],
+      "challenge": {
+        "title": "Display a detailed listing",
+        "instructions": "Run ls -l.",
+        "check": {
+          "type": "ran_command",
+          "value": "ls -l"
+        }
+      }
+    },
+    {
+      "id": 104,
+      "module_id": 1,
+      "title": "Essential Navigation Commands",
+      "objective": "Identify the current location and move around the directory structure.",
+      "estimated_minutes": 15,
+      "mission": "Identify the current location and move around the directory structure.",
+      "theory": [
+        {
+          "heading": "Know where you are",
+          "content": "The shell keeps a current working directory. pwd prints its full path. This helps you understand where relative paths will be interpreted.",
+          "key_points": [
+            "pwd means print working directory.",
+            "A path describes a location.",
+            "The home directory is commonly represented by ~."
+          ]
+        },
+        {
+          "heading": "List and move",
+          "content": "ls lists directory contents. cd changes the current directory. Use cd .. to move to the parent directory and cd ~ to return to your home directory.",
+          "key_points": [
+            "ls lists files and directories.",
+            "cd changes directory.",
+            "clear clears the visible terminal screen.",
+            "history shows previously entered commands in many shells."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Check your location",
+          "text": "Use pwd to display the current working directory.",
+          "example_command": "pwd",
+          "example_output": "/home/user",
+          "hint": "pwd prints the working directory."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "List the contents",
+          "text": "Use ls to see files and directories.",
+          "example_command": "ls",
+          "example_output": "docs notes.txt",
+          "command_to_try": "ls",
+          "check": {
+            "type": "ran_command",
+            "value": "ls"
+          },
+          "hint": "Use ls."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Enter the docs folder",
+          "text": "Move into the docs directory.",
+          "example_command": "cd docs",
+          "example_output": "",
+          "command_to_try": "cd docs",
+          "check": {
+            "type": "cwd_is",
+            "value": "/home/user/docs"
+          },
+          "hint": "Use cd docs."
+        }
+      ],
+      "challenge": {
+        "title": "Navigate into docs",
+        "instructions": "Move into /home/user/docs.",
+        "check": {
+          "type": "cwd_is",
+          "value": "/home/user/docs"
+        }
+      }
+    },
+    {
+      "id": 201,
+      "module_id": 2,
+      "title": "Linux Directory Hierarchy",
+      "objective": "Understand the root directory and common system directories.",
+      "estimated_minutes": 15,
+      "mission": "Understand the root directory and common system directories.",
+      "theory": [
+        {
+          "heading": "The root directory",
+          "content": "Linux organizes files in one tree that begins at /. This is the root directory. It is different from the root user's home directory, which is commonly /root.",
+          "key_points": [
+            "/ is the top of the filesystem tree.",
+            "/home contains users' home directories.",
+            "/root is the root user's home directory."
+          ]
+        },
+        {
+          "heading": "Important directories",
+          "content": "/etc commonly stores system configuration, /var stores variable data such as logs, /tmp stores temporary files, and /bin contains essential command binaries on systems that use this layout.",
+          "key_points": [
+            "/etc — configuration.",
+            "/var — variable data and logs.",
+            "/tmp — temporary files.",
+            "/usr — many user-space programs and shared resources."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Understand the tree",
+          "text": "Every absolute Linux path begins at /.",
+          "example_command": "pwd",
+          "example_output": "/home/user",
+          "hint": "An absolute path begins with /."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Inspect your location",
+          "text": "Run pwd to see your current path.",
+          "example_command": "pwd",
+          "example_output": "/home/user",
+          "command_to_try": "pwd",
+          "check": {
+            "type": "ran_command",
+            "value": "pwd"
+          },
+          "hint": "Use pwd."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "List your home directory",
+          "text": "Display the files and folders in your current home directory.",
+          "example_command": "ls",
+          "example_output": "docs notes.txt",
+          "command_to_try": "ls",
+          "check": {
+            "type": "ran_command",
+            "value": "ls"
+          },
+          "hint": "Use ls."
+        }
+      ],
+      "challenge": {
+        "title": "Explore the home directory",
+        "instructions": "Run ls to inspect the current directory.",
+        "check": {
+          "type": "ran_command",
+          "value": "ls"
+        }
+      }
+    },
+    {
+      "id": 202,
+      "module_id": 2,
+      "title": "Paths and Hidden Files",
+      "objective": "Distinguish absolute and relative paths and recognize hidden files.",
+      "estimated_minutes": 15,
+      "mission": "Distinguish absolute and relative paths and recognize hidden files.",
+      "theory": [
+        {
+          "heading": "Absolute and relative paths",
+          "content": "An absolute path starts from /. A relative path is interpreted from the current working directory. The special name . means the current directory and .. means its parent.",
+          "key_points": [
+            "Absolute: /home/user/docs.",
+            "Relative: docs/notes.txt.",
+            ". means current directory.",
+            ".. means parent directory."
+          ]
+        },
+        {
+          "heading": "Hidden files",
+          "content": "On Linux, a filename beginning with a dot is treated as hidden by many directory-listing tools. Use ls -a to include hidden entries.",
+          "key_points": [
+            "Hidden names begin with a dot.",
+            "ls -a shows hidden entries.",
+            "A hidden file is not automatically secure."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Compare paths",
+          "text": "If you are in /home/user, docs is a relative path and /home/user/docs is an absolute path.",
+          "example_command": "pwd",
+          "example_output": "/home/user",
+          "hint": "Absolute paths start at /."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "List hidden entries",
+          "text": "Use ls -a to include hidden entries.",
+          "example_command": "ls -a",
+          "example_output": ". .. .profile docs notes.txt",
+          "command_to_try": "ls -a",
+          "check": {
+            "type": "ran_command",
+            "value": "ls -a"
+          },
+          "hint": "Add -a to ls."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Move to the parent",
+          "text": "Move one directory up using ..",
+          "example_command": "cd ..",
+          "example_output": "",
+          "command_to_try": "cd ..",
+          "check": {
+            "type": "cwd_is",
+            "value": "/home"
+          },
+          "hint": "Use cd .."
+        }
+      ],
+      "challenge": {
+        "title": "Move to the parent directory",
+        "instructions": "Run cd .. from /home/user.",
+        "check": {
+          "type": "cwd_is",
+          "value": "/home"
+        }
+      }
+    },
+    {
+      "id": 203,
+      "module_id": 2,
+      "title": "Creating and Managing Files",
+      "objective": "Create directories and files, and understand copy, move and remove operations.",
+      "estimated_minutes": 15,
+      "mission": "Create directories and files, and understand copy, move and remove operations.",
+      "theory": [
+        {
+          "heading": "Directories and files",
+          "content": "mkdir creates directories and touch can create an empty file. cp copies files or directories, while mv moves or renames them. rm removes files; rmdir removes empty directories.",
+          "key_points": [
+            "mkdir — create a directory.",
+            "touch — create an empty file or update timestamps.",
+            "cp — copy.",
+            "mv — move or rename.",
+            "rm — remove files.",
+            "rmdir — remove an empty directory."
+          ]
+        },
+        {
+          "heading": "Be careful when deleting",
+          "content": "Removal commands can permanently delete data. In this learning platform, commands operate only on a simulated filesystem. On a real computer, check the path carefully before removing anything.",
+          "key_points": [
+            "Check the target before deleting.",
+            "rm does not normally move files to a recycle bin.",
+            "rmdir only removes empty directories."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Create a directory",
+          "text": "mkdir creates a new directory in the current location.",
+          "example_command": "mkdir practice",
+          "example_output": "",
+          "hint": "mkdir is short for make directory."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Create a directory",
+          "text": "Create a folder named practice.",
+          "example_command": "mkdir practice",
+          "example_output": "",
+          "command_to_try": "mkdir practice",
+          "check": {
+            "type": "path_exists",
+            "value": "/home/user/practice"
+          },
+          "hint": "Type mkdir practice."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Create a file",
+          "text": "Create an empty file named hello.txt in your home directory.",
+          "example_command": "touch hello.txt",
+          "example_output": "",
+          "command_to_try": "touch hello.txt",
+          "check": {
+            "type": "path_exists",
+            "value": "/home/user/hello.txt"
+          },
+          "hint": "Use touch followed by the filename."
+        }
+      ],
+      "challenge": {
+        "title": "Create hello.txt",
+        "instructions": "Create /home/user/hello.txt.",
+        "check": {
+          "type": "path_exists",
+          "value": "/home/user/hello.txt"
+        }
+      }
+    },
+    {
+      "id": 204,
+      "module_id": 2,
+      "title": "Reading and Searching Files",
+      "objective": "Read file contents, write simple text and search for files.",
+      "estimated_minutes": 15,
+      "mission": "Read file contents, write simple text and search for files.",
+      "theory": [
+        {
+          "heading": "Read file contents",
+          "content": "cat prints file contents. head displays the beginning of a file and tail displays the end. These are useful when a file is too long to inspect all at once.",
+          "key_points": [
+            "cat — display file contents.",
+            "head — beginning of a file.",
+            "tail — end of a file."
+          ]
+        },
+        {
+          "heading": "Write and search",
+          "content": "echo prints text and can be combined with redirection to write output to a file. find searches for files and directories under a specified starting location.",
+          "key_points": [
+            "echo displays text.",
+            "> redirects output and overwrites a file.",
+            ">> appends output when supported.",
+            "find searches directory trees."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Read a file",
+          "text": "cat notes.txt displays the contents of notes.txt.",
+          "example_command": "cat notes.txt",
+          "example_output": "Welcome to Linux!",
+          "hint": "Put the filename after cat."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Display file contents",
+          "text": "Read notes.txt.",
+          "example_command": "cat notes.txt",
+          "example_output": "Welcome to Linux!",
+          "command_to_try": "cat notes.txt",
+          "check": {
+            "type": "ran_command",
+            "value": "cat"
+          },
+          "hint": "Use cat notes.txt."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Write a message",
+          "text": "Write a short message into a file using echo and redirection.",
+          "example_command": "echo Hello > message.txt",
+          "example_output": "",
+          "command_to_try": "echo Hello > message.txt",
+          "check": {
+            "type": "path_exists",
+            "value": "/home/user/message.txt"
+          },
+          "hint": "Use echo text > filename."
+        }
+      ],
+      "challenge": {
+        "title": "Create a message file",
+        "instructions": "Create message.txt using echo and >.",
+        "check": {
+          "type": "path_exists",
+          "value": "/home/user/message.txt"
+        }
+      }
+    },
+    {
+      "id": 301,
+      "module_id": 3,
+      "title": "Users and Groups",
+      "objective": "Understand Linux accounts, groups and user identity.",
+      "estimated_minutes": 15,
+      "mission": "Understand Linux accounts, groups and user identity.",
+      "theory": [
+        {
+          "heading": "Users",
+          "content": "Linux is a multi-user operating system. Each user account has an identity and permissions. Processes generally run with the privileges of the user who started them.",
+          "key_points": [
+            "A user account identifies a person or service.",
+            "whoami prints the effective username.",
+            "id displays user and group identity information."
+          ]
+        },
+        {
+          "heading": "Groups",
+          "content": "Groups let administrators assign permissions to collections of users. A user can belong to one or more groups. The groups command displays the groups associated with the current user.",
+          "key_points": [
+            "Groups simplify shared access.",
+            "id shows user and group IDs.",
+            "groups lists group memberships."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Identify the current user",
+          "text": "whoami displays the current effective username.",
+          "example_command": "whoami",
+          "example_output": "user",
+          "hint": "Use whoami."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Check your identity",
+          "text": "Run id to see user and group IDs.",
+          "example_command": "id",
+          "example_output": "uid=1000(user) gid=1000(user)",
+          "command_to_try": "id",
+          "check": {
+            "type": "ran_command",
+            "value": "id"
+          },
+          "hint": "Use id."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "List your groups",
+          "text": "Display the groups associated with the current user.",
+          "example_command": "groups",
+          "example_output": "user",
+          "command_to_try": "groups",
+          "check": {
+            "type": "ran_command",
+            "value": "groups"
+          },
+          "hint": "Use groups."
+        }
+      ],
+      "challenge": {
+        "title": "List current groups",
+        "instructions": "Run groups.",
+        "check": {
+          "type": "ran_command",
+          "value": "groups"
+        }
+      }
+    },
+    {
+      "id": 302,
+      "module_id": 3,
+      "title": "Understanding File Permissions",
+      "objective": "Read permission strings and understand owner, group and others.",
+      "estimated_minutes": 15,
+      "mission": "Read permission strings and understand owner, group and others.",
+      "theory": [
+        {
+          "heading": "Three permission categories",
+          "content": "Linux file permissions are commonly shown for three categories: owner, group and others. These categories determine which users can access a file or directory.",
+          "key_points": [
+            "Owner — the file's owning user.",
+            "Group — users in the file's group.",
+            "Others — everyone else."
+          ]
+        },
+        {
+          "heading": "Read, write and execute",
+          "content": "The letters r, w and x represent read, write and execute permissions. For a directory, execute permission is needed to access entries inside it. ls -l displays a long listing including permissions.",
+          "key_points": [
+            "r = read.",
+            "w = write.",
+            "x = execute.",
+            "- = permission not granted."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Read a permission string",
+          "text": "In -rw-r--r--, the first character indicates file type, followed by permissions for owner, group and others.",
+          "example_command": "ls -l",
+          "example_output": "-rw-r--r-- notes.txt",
+          "hint": "Read the permission groups from left to right."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Inspect permissions",
+          "text": "Run ls -l to view the simulated file permissions.",
+          "example_command": "ls -l",
+          "example_output": "-rw-r--r-- notes.txt",
+          "command_to_try": "ls -l",
+          "check": {
+            "type": "ran_command",
+            "value": "ls -l"
+          },
+          "hint": "Use ls with the -l option."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Inspect the file",
+          "text": "Use ls -l to inspect the current directory in detail.",
+          "example_command": "ls -l",
+          "example_output": "-rw-r--r-- notes.txt",
+          "command_to_try": "ls -l",
+          "check": {
+            "type": "ran_command",
+            "value": "ls -l"
+          },
+          "hint": "Use ls -l."
+        }
+      ],
+      "challenge": {
+        "title": "Inspect file permissions",
+        "instructions": "Run ls -l.",
+        "check": {
+          "type": "ran_command",
+          "value": "ls -l"
+        }
+      }
+    },
+    {
+      "id": 303,
+      "module_id": 3,
+      "title": "Changing Permissions with chmod",
+      "objective": "Change permissions symbolically and understand numeric permission notation.",
+      "estimated_minutes": 15,
+      "mission": "Change permissions symbolically and understand numeric permission notation.",
+      "theory": [
+        {
+          "heading": "The chmod command",
+          "content": "chmod changes file or directory permissions. Symbolic notation uses categories such as u (owner), g (group), o (others) and operations such as + (add), - (remove) and = (set).",
+          "key_points": [
+            "chmod changes permissions.",
+            "u = owner, g = group, o = others.",
+            "+ adds and - removes permissions.",
+            "Example: chmod +x script.sh adds execute permission."
+          ]
+        },
+        {
+          "heading": "Numeric permissions",
+          "content": "Numeric permissions use 4 for read, 2 for write and 1 for execute. Add the values for each category. For example, 755 means owner has 7 (4+2+1), group has 5 (4+1), and others have 5 (4+1).",
+          "key_points": [
+            "4 = read.",
+            "2 = write.",
+            "1 = execute.",
+            "755 = rwx for owner, r-x for group and others.",
+            "644 = rw- for owner, r-- for group and others."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Add execute permission",
+          "text": "chmod +x notes.txt adds execute permission in the simulator.",
+          "example_command": "chmod +x notes.txt",
+          "example_output": "",
+          "hint": "+x adds execute permission."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Change permissions",
+          "text": "Make notes.txt executable.",
+          "example_command": "chmod +x notes.txt",
+          "example_output": "",
+          "command_to_try": "chmod +x notes.txt",
+          "check": {
+            "type": "file_executable",
+            "value": "/home/user/notes.txt"
+          },
+          "hint": "Use chmod +x notes.txt."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Verify the permission",
+          "text": "Run ls -l after changing the permission.",
+          "example_command": "ls -l",
+          "example_output": "-rwxr-xr-x notes.txt",
+          "command_to_try": "ls -l",
+          "check": {
+            "type": "ran_command",
+            "value": "ls -l"
+          },
+          "hint": "Use ls -l to inspect the result."
+        }
+      ],
+      "challenge": {
+        "title": "Make notes.txt executable",
+        "instructions": "Run chmod +x notes.txt.",
+        "check": {
+          "type": "file_executable",
+          "value": "/home/user/notes.txt"
+        }
+      }
+    },
+    {
+      "id": 304,
+      "module_id": 3,
+      "title": "Ownership, Root and sudo",
+      "objective": "Understand file ownership and why administrative commands require care.",
+      "estimated_minutes": 15,
+      "mission": "Understand file ownership and why administrative commands require care.",
+      "theory": [
+        {
+          "heading": "Ownership",
+          "content": "Files and directories have an owning user and group. Ownership helps determine which permission set applies. chown is used to change ownership and normally requires administrative privileges.",
+          "key_points": [
+            "Every file has an owner and group.",
+            "chown changes ownership.",
+            "Ownership is different from permissions."
+          ]
+        },
+        {
+          "heading": "Root and sudo",
+          "content": "The root account has extensive administrative privileges. sudo allows an authorized user to run a command with elevated privileges. Use it carefully because administrative commands can change important system files.",
+          "key_points": [
+            "Root is the administrative user.",
+            "sudo runs an authorized command with elevated privileges.",
+            "Do not copy privileged commands without understanding them."
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "step_number": 1,
+          "kind": "learn",
+          "title": "Understand administrative access",
+          "text": "sudo is used before a command when elevated privileges are required. The simulator explains this concept but does not grant real system access.",
+          "example_command": "sudo apt update",
+          "example_output": "Package information updated (illustrative)",
+          "hint": "sudo requests elevated privileges."
+        },
+        {
+          "step_number": 2,
+          "kind": "try",
+          "title": "Identify your user",
+          "text": "Run whoami to identify the active user.",
+          "example_command": "whoami",
+          "example_output": "user",
+          "command_to_try": "whoami",
+          "check": {
+            "type": "ran_command",
+            "value": "whoami"
+          },
+          "hint": "Use whoami."
+        },
+        {
+          "step_number": 3,
+          "kind": "challenge",
+          "title": "Inspect identity information",
+          "text": "Run id to inspect your user and group identity.",
+          "example_command": "id",
+          "example_output": "uid=1000(user) gid=1000(user)",
+          "command_to_try": "id",
+          "check": {
+            "type": "ran_command",
+            "value": "id"
+          },
+          "hint": "Use id."
+        }
+      ],
+      "challenge": {
+        "title": "Inspect your account",
+        "instructions": "Run id.",
+        "check": {
+          "type": "ran_command",
+          "value": "id"
+        }
+      }
+    }
+  ],
+  "questions": {
+    "101": [
+      {
+        "id": 1,
+        "question": "What is the main role of an operating system?",
+        "options": [
+          "Manage hardware and provide services to applications",
+          "Only browse the internet",
+          "Only create documents",
+          "Replace the CPU"
+        ],
+        "correct_option": 0,
+        "explanation": "An operating system manages hardware resources and provides services to applications."
+      },
+      {
+        "id": 2,
+        "question": "What is Linux technically?",
+        "options": [
+          "A web browser",
+          "An open-source kernel",
+          "A database",
+          "A programming language"
+        ],
+        "correct_option": 1,
+        "explanation": "Linux is technically an open-source operating system kernel."
+      },
+      {
+        "id": 3,
+        "question": "What is Ubuntu?",
+        "options": [
+          "A Linux distribution",
+          "A shell command",
+          "A hardware component",
+          "A text editor"
+        ],
+        "correct_option": 0,
+        "explanation": "Ubuntu is a Linux distribution."
+      },
+      {
+        "id": 4,
+        "question": "Which component manages communication between software and hardware?",
+        "options": [
+          "Wallpaper",
+          "Kernel",
+          "Web page",
+          "Text file"
+        ],
+        "correct_option": 1,
+        "explanation": "The kernel manages system resources and hardware interactions."
+      },
+      {
+        "id": 5,
+        "question": "Which statement about Linux is correct?",
+        "options": [
+          "It is only used on laptops",
+          "It is closed source",
+          "It is used in many kinds of devices and systems",
+          "It is a spreadsheet program"
+        ],
+        "correct_option": 2,
+        "explanation": "Linux-based systems are used on servers, desktops, embedded devices and more."
+      }
+    ],
+    "102": [
+      {
+        "id": 1,
+        "question": "What is a Linux distribution?",
+        "options": [
+          "A packaged Linux-based operating system",
+          "A computer brand",
+          "A file extension",
+          "A terminal prompt"
+        ],
+        "correct_option": 0,
+        "explanation": "A distribution combines the Linux kernel with tools, software and defaults."
+      },
+      {
+        "id": 2,
+        "question": "Which distribution is used for examples in this course?",
+        "options": [
+          "Fedora",
+          "Ubuntu",
+          "Arch only",
+          "Windows"
+        ],
+        "correct_option": 1,
+        "explanation": "This course uses Ubuntu-oriented examples."
+      },
+      {
+        "id": 3,
+        "question": "Which package tool is commonly used by Ubuntu?",
+        "options": [
+          "DNF",
+          "APT",
+          "Photoshop",
+          "GitHub"
+        ],
+        "correct_option": 1,
+        "explanation": "Ubuntu commonly uses APT for package management."
+      },
+      {
+        "id": 4,
+        "question": "Which distribution commonly uses DNF?",
+        "options": [
+          "Fedora",
+          "Ubuntu",
+          "Debian",
+          "Linux Mint Debian Edition"
+        ],
+        "correct_option": 0,
+        "explanation": "Fedora uses DNF as its package manager."
+      },
+      {
+        "id": 5,
+        "question": "Why do different distributions exist?",
+        "options": [
+          "They have different software choices and goals",
+          "Linux requires a different CPU for each",
+          "They are all web browsers",
+          "They cannot run applications"
+        ],
+        "correct_option": 0,
+        "explanation": "Distributions make different choices about software, updates and defaults."
+      }
+    ],
+    "103": [
+      {
+        "id": 1,
+        "question": "What is a terminal?",
+        "options": [
+          "A text-based interface",
+          "The Linux kernel",
+          "A file permission",
+          "A user group"
+        ],
+        "correct_option": 0,
+        "explanation": "A terminal provides an interface for entering and viewing text commands."
+      },
+      {
+        "id": 2,
+        "question": "What is a shell?",
+        "options": [
+          "A command interpreter",
+          "A monitor",
+          "A directory",
+          "A hardware cable"
+        ],
+        "correct_option": 0,
+        "explanation": "A shell reads commands and requests that the operating system carry them out."
+      },
+      {
+        "id": 3,
+        "question": "Which is a commonly used shell?",
+        "options": [
+          "Bash",
+          "HTML",
+          "CSS",
+          "JPEG"
+        ],
+        "correct_option": 0,
+        "explanation": "Bash is a commonly used shell on Ubuntu."
+      },
+      {
+        "id": 4,
+        "question": "In ls -l /home, what is -l?",
+        "options": [
+          "An option",
+          "A username",
+          "A directory",
+          "A second command"
+        ],
+        "correct_option": 0,
+        "explanation": "-l is an option that changes the listing format."
+      },
+      {
+        "id": 5,
+        "question": "Are Linux command names generally case-sensitive?",
+        "options": [
+          "Yes",
+          "No",
+          "Only on Fridays",
+          "Only in folders"
+        ],
+        "correct_option": 0,
+        "explanation": "Linux command names and paths are generally case-sensitive."
+      }
+    ],
+    "104": [
+      {
+        "id": 1,
+        "question": "Which command prints the current working directory?",
+        "options": [
+          "ls",
+          "pwd",
+          "cd",
+          "clear"
+        ],
+        "correct_option": 1,
+        "explanation": "pwd prints the current working directory."
+      },
+      {
+        "id": 2,
+        "question": "Which command lists directory contents?",
+        "options": [
+          "ls",
+          "whoami",
+          "date",
+          "touch"
+        ],
+        "correct_option": 0,
+        "explanation": "ls lists files and directories."
+      },
+      {
+        "id": 3,
+        "question": "Which command changes the current directory?",
+        "options": [
+          "pwd",
+          "cd",
+          "cat",
+          "echo"
+        ],
+        "correct_option": 1,
+        "explanation": "cd changes the current directory."
+      },
+      {
+        "id": 4,
+        "question": "What does cd .. usually do?",
+        "options": [
+          "Moves to the parent directory",
+          "Deletes a directory",
+          "Creates a file",
+          "Prints the date"
+        ],
+        "correct_option": 0,
+        "explanation": "The .. path component refers to the parent directory."
+      },
+      {
+        "id": 5,
+        "question": "Which command clears the visible terminal screen?",
+        "options": [
+          "clear",
+          "mkdir",
+          "id",
+          "find"
+        ],
+        "correct_option": 0,
+        "explanation": "clear clears the visible terminal screen."
+      }
+    ],
+    "201": [
+      {
+        "id": 1,
+        "question": "Which symbol represents the root directory?",
+        "options": [
+          "~",
+          ".",
+          "/",
+          "#"
+        ],
+        "correct_option": 2,
+        "explanation": "The root directory is represented by /."
+      },
+      {
+        "id": 2,
+        "question": "Which directory commonly contains users' home directories?",
+        "options": [
+          "/etc",
+          "/home",
+          "/tmp",
+          "/var"
+        ],
+        "correct_option": 1,
+        "explanation": "/home commonly contains users' home directories."
+      },
+      {
+        "id": 3,
+        "question": "Where are many system configuration files commonly stored?",
+        "options": [
+          "/etc",
+          "/home",
+          "/media",
+          "/proc"
+        ],
+        "correct_option": 0,
+        "explanation": "/etc commonly stores system configuration."
+      },
+      {
+        "id": 4,
+        "question": "Which directory commonly stores variable data and logs?",
+        "options": [
+          "/var",
+          "/bin",
+          "/boot",
+          "/home"
+        ],
+        "correct_option": 0,
+        "explanation": "/var stores variable data, including many logs."
+      },
+      {
+        "id": 5,
+        "question": "Is /root the same as /?",
+        "options": [
+          "Yes",
+          "No",
+          "Only on Windows",
+          "Only for guests"
+        ],
+        "correct_option": 1,
+        "explanation": "/ is the filesystem root; /root is commonly the root user's home directory."
+      }
+    ],
+    "202": [
+      {
+        "id": 1,
+        "question": "What does an absolute path begin with?",
+        "options": [
+          ".",
+          "/",
+          "~",
+          "-"
+        ],
+        "correct_option": 1,
+        "explanation": "An absolute path starts from the root directory /."
+      },
+      {
+        "id": 2,
+        "question": "A relative path is interpreted from where?",
+        "options": [
+          "The current working directory",
+          "The BIOS",
+          "The internet",
+          "The root user's password"
+        ],
+        "correct_option": 0,
+        "explanation": "A relative path is interpreted from the current working directory."
+      },
+      {
+        "id": 3,
+        "question": "What does .. represent in a path?",
+        "options": [
+          "Current directory",
+          "Parent directory",
+          "Root user",
+          "Hidden file"
+        ],
+        "correct_option": 1,
+        "explanation": ".. refers to the parent directory."
+      },
+      {
+        "id": 4,
+        "question": "Which command includes hidden entries in a listing?",
+        "options": [
+          "ls -a",
+          "pwd -p",
+          "cd -a",
+          "rm -a"
+        ],
+        "correct_option": 0,
+        "explanation": "ls -a includes hidden entries."
+      },
+      {
+        "id": 5,
+        "question": "How do many Linux tools identify hidden filenames?",
+        "options": [
+          "They begin with a dot",
+          "They end with .hidden",
+          "They contain spaces",
+          "They are always encrypted"
+        ],
+        "correct_option": 0,
+        "explanation": "A filename beginning with a dot is treated as hidden by many tools."
+      }
+    ],
+    "203": [
+      {
+        "id": 1,
+        "question": "Which command creates a directory?",
+        "options": [
+          "touch",
+          "mkdir",
+          "cat",
+          "pwd"
+        ],
+        "correct_option": 1,
+        "explanation": "mkdir creates directories."
+      },
+      {
+        "id": 2,
+        "question": "Which command can create an empty file?",
+        "options": [
+          "touch",
+          "cd",
+          "groups",
+          "uname"
+        ],
+        "correct_option": 0,
+        "explanation": "touch can create an empty file."
+      },
+      {
+        "id": 3,
+        "question": "Which command copies files?",
+        "options": [
+          "cp",
+          "mv",
+          "rm",
+          "id"
+        ],
+        "correct_option": 0,
+        "explanation": "cp copies files and, with appropriate options, directories."
+      },
+      {
+        "id": 4,
+        "question": "Which command moves or renames a file?",
+        "options": [
+          "mv",
+          "cat",
+          "pwd",
+          "date"
+        ],
+        "correct_option": 0,
+        "explanation": "mv moves or renames files and directories."
+      },
+      {
+        "id": 5,
+        "question": "What does rmdir remove?",
+        "options": [
+          "An empty directory",
+          "Any running process",
+          "The root filesystem",
+          "A user account"
+        ],
+        "correct_option": 0,
+        "explanation": "rmdir removes empty directories."
+      }
+    ],
+    "204": [
+      {
+        "id": 1,
+        "question": "Which command displays file contents?",
+        "options": [
+          "cat",
+          "mkdir",
+          "cd",
+          "chmod"
+        ],
+        "correct_option": 0,
+        "explanation": "cat displays file contents."
+      },
+      {
+        "id": 2,
+        "question": "Which command displays the beginning of a file?",
+        "options": [
+          "tail",
+          "head",
+          "find",
+          "groups"
+        ],
+        "correct_option": 1,
+        "explanation": "head displays the beginning of a file."
+      },
+      {
+        "id": 3,
+        "question": "Which command displays the end of a file?",
+        "options": [
+          "head",
+          "tail",
+          "touch",
+          "pwd"
+        ],
+        "correct_option": 1,
+        "explanation": "tail displays the end of a file."
+      },
+      {
+        "id": 4,
+        "question": "Which command searches for files and directories?",
+        "options": [
+          "find",
+          "whoami",
+          "clear",
+          "uname"
+        ],
+        "correct_option": 0,
+        "explanation": "find searches directory trees."
+      },
+      {
+        "id": 5,
+        "question": "What does > do in shell redirection?",
+        "options": [
+          "Redirects output and typically overwrites the target",
+          "Lists hidden files",
+          "Changes directory",
+          "Changes ownership"
+        ],
+        "correct_option": 0,
+        "explanation": "The > operator redirects output and typically overwrites the target file."
+      }
+    ],
+    "301": [
+      {
+        "id": 1,
+        "question": "Which command prints the effective username?",
+        "options": [
+          "whoami",
+          "pwd",
+          "ls",
+          "touch"
+        ],
+        "correct_option": 0,
+        "explanation": "whoami prints the effective username."
+      },
+      {
+        "id": 2,
+        "question": "Which command displays user and group IDs?",
+        "options": [
+          "id",
+          "cat",
+          "cd",
+          "clear"
+        ],
+        "correct_option": 0,
+        "explanation": "id displays user and group identity information."
+      },
+      {
+        "id": 3,
+        "question": "Which command lists groups for the current user?",
+        "options": [
+          "groups",
+          "mkdir",
+          "head",
+          "date"
+        ],
+        "correct_option": 0,
+        "explanation": "groups displays group memberships."
+      },
+      {
+        "id": 4,
+        "question": "Why are groups useful?",
+        "options": [
+          "They help manage shared permissions",
+          "They speed up the CPU",
+          "They replace the kernel",
+          "They hide all files"
+        ],
+        "correct_option": 0,
+        "explanation": "Groups let administrators assign access to multiple users together."
+      },
+      {
+        "id": 5,
+        "question": "Is Linux designed to support multiple user accounts?",
+        "options": [
+          "Yes",
+          "No",
+          "Only on servers",
+          "Only with a GUI"
+        ],
+        "correct_option": 0,
+        "explanation": "Linux is a multi-user operating system."
+      }
+    ],
+    "302": [
+      {
+        "id": 1,
+        "question": "What does r represent in permissions?",
+        "options": [
+          "Read",
+          "Rename",
+          "Run as root",
+          "Remove"
+        ],
+        "correct_option": 0,
+        "explanation": "r represents read permission."
+      },
+      {
+        "id": 2,
+        "question": "What does w represent?",
+        "options": [
+          "Wait",
+          "Write",
+          "Watch",
+          "Web"
+        ],
+        "correct_option": 1,
+        "explanation": "w represents write permission."
+      },
+      {
+        "id": 3,
+        "question": "What does x represent?",
+        "options": [
+          "Exit",
+          "Execute",
+          "Extract",
+          "Expand"
+        ],
+        "correct_option": 1,
+        "explanation": "x represents execute permission."
+      },
+      {
+        "id": 4,
+        "question": "Which groups are represented in a standard permission string?",
+        "options": [
+          "Owner, group, others",
+          "Admin, guest, browser",
+          "CPU, RAM, disk",
+          "Root, kernel, shell"
+        ],
+        "correct_option": 0,
+        "explanation": "The permission bits are shown for owner, group and others."
+      },
+      {
+        "id": 5,
+        "question": "Which command shows a long listing with permissions?",
+        "options": [
+          "ls -l",
+          "pwd",
+          "cd",
+          "echo"
+        ],
+        "correct_option": 0,
+        "explanation": "ls -l displays a detailed listing including permissions."
+      }
+    ],
+    "303": [
+      {
+        "id": 1,
+        "question": "Which command changes file permissions?",
+        "options": [
+          "chmod",
+          "chown",
+          "pwd",
+          "cat"
+        ],
+        "correct_option": 0,
+        "explanation": "chmod changes permissions."
+      },
+      {
+        "id": 2,
+        "question": "What is the numeric value for read permission?",
+        "options": [
+          "1",
+          "2",
+          "4",
+          "7"
+        ],
+        "correct_option": 2,
+        "explanation": "Read is represented by 4 in numeric permission notation."
+      },
+      {
+        "id": 3,
+        "question": "What is the numeric value for write permission?",
+        "options": [
+          "1",
+          "2",
+          "4",
+          "6"
+        ],
+        "correct_option": 1,
+        "explanation": "Write is represented by 2."
+      },
+      {
+        "id": 4,
+        "question": "What is the numeric value for execute permission?",
+        "options": [
+          "1",
+          "3",
+          "5",
+          "7"
+        ],
+        "correct_option": 0,
+        "explanation": "Execute is represented by 1."
+      },
+      {
+        "id": 5,
+        "question": "What does chmod +x file add?",
+        "options": [
+          "Execute permission",
+          "A new user",
+          "A directory",
+          "A file extension"
+        ],
+        "correct_option": 0,
+        "explanation": "The +x form adds execute permission."
+      }
+    ],
+    "304": [
+      {
+        "id": 1,
+        "question": "Which command changes file ownership?",
+        "options": [
+          "chown",
+          "chmod",
+          "whoami",
+          "ls"
+        ],
+        "correct_option": 0,
+        "explanation": "chown changes ownership."
+      },
+      {
+        "id": 2,
+        "question": "What is the root account?",
+        "options": [
+          "An account with extensive administrative privileges",
+          "A normal text file",
+          "A package manager",
+          "A desktop theme"
+        ],
+        "correct_option": 0,
+        "explanation": "The root account has extensive administrative privileges."
+      },
+      {
+        "id": 3,
+        "question": "What does sudo do?",
+        "options": [
+          "Runs an authorized command with elevated privileges",
+          "Deletes all users",
+          "Changes the current directory",
+          "Lists files"
+        ],
+        "correct_option": 0,
+        "explanation": "sudo runs a command with elevated privileges when authorized."
+      },
+      {
+        "id": 4,
+        "question": "Why should sudo be used carefully?",
+        "options": [
+          "Privileged commands can change important system files",
+          "It changes screen brightness",
+          "It makes commands case-insensitive",
+          "It disables all permissions"
+        ],
+        "correct_option": 0,
+        "explanation": "Administrative commands can affect important parts of the system."
+      },
+      {
+        "id": 5,
+        "question": "Are ownership and permissions the same thing?",
+        "options": [
+          "Yes",
+          "No",
+          "Only for directories",
+          "Only for root"
+        ],
+        "correct_option": 1,
+        "explanation": "Ownership identifies the user and group; permissions define allowed access."
+      }
+    ]
+  },
+  "modules": [
+    {
+      "id": 1,
+      "title": "Linux Fundamentals",
+      "description": "Understand Linux, distributions, the terminal and essential commands.",
+      "lesson_ids": [
+        101,
+        102,
+        103,
+        104
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Linux File System",
+      "description": "Explore directories, paths, files and file operations.",
+      "lesson_ids": [
+        201,
+        202,
+        203,
+        204
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Users and Permissions",
+      "description": "Understand users, groups, ownership and access permissions.",
+      "lesson_ids": [
+        301,
+        302,
+        303,
+        304
+      ]
+    }
+  ]
+}

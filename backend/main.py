@@ -250,6 +250,7 @@ def complete_challenge(lesson_id: int, current_user: dict = Depends(get_current_
 
 # ---------------- Lesson quizzes ----------------
 @app.get("/lessons/{lesson_id}/questions")
+@app.get("/lessons/{lesson_id}/quiz")
 def get_questions(lesson_id: int, current_user: dict = Depends(get_current_user)):
     get_open_lesson(lesson_id, current_user["id"])
 
@@ -265,6 +266,7 @@ def get_questions(lesson_id: int, current_user: dict = Depends(get_current_user)
 
 
 @app.post("/lessons/{lesson_id}/quiz")
+@app.post("/lessons/{lesson_id}/quiz/submit")
 def submit_quiz(
     lesson_id: int,
     data: QuizRequest,
@@ -379,6 +381,11 @@ def get_progress(current_user: dict = Depends(get_current_user)):
 
     all_ids = [lid for module in MODULES for lid in module["lesson_ids"]]
     completed_ids = [lid for lid in all_ids if is_lesson_completed(progress, lid)]
+        # Lesson ids whose practice challenge is finished
+    challenge_completed = [
+        lid for lid in all_ids
+        if progress.get(lid, {}).get("challenge_done") == 1
+    ]
 
     best_scores = {}   # {"101": 80}  (percentages)
     total_score = 0
@@ -407,4 +414,5 @@ def get_progress(current_user: dict = Depends(get_current_user)):
         "best_scores": best_scores,
         "total_score": total_score,
         "continue_lesson_id": continue_id,
+        "challenge_completed": challenge_completed,
     }

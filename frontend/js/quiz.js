@@ -3,7 +3,7 @@
 // QUIZ PAGE LOGIC
 // ==========================================
 
-// 1. GET LESSON ID FIRST
+// 1. GET LESSON ID
 
 const quizParams = new URLSearchParams(window.location.search);
 const quizLessonId = quizParams.get("id");
@@ -13,35 +13,64 @@ let selectedAnswers = {};
 let quizSubmitted = false;
 let quizPassed = false;
 
+let selectedLesson = null;
+let selectedModule = null;
+let nextLesson = null;
 
-// 2. START INITIALIZATION AFTER VARIABLES EXIST
+
+// 2. INITIALIZE QUIZ
 
 if (requireLogin()) {
     initializeQuiz();
 }
 
-// 2. LOAD QUIZ QUESTIONS
 
 async function initializeQuiz() {
     try {
         if (!quizLessonId) {
-            window.location.href = "dashboard.html";
-            return;
+            throw new Error("No lesson ID was provided.");
         }
 
-        // Make sure the student has completed the challenge.
+        // Get all modules
         const modules = await api.getModules();
 
-        const selectedModule = modules.find(
-            module => String(module.id) === String(quizLessonId)
+        // Find the module containing this lesson
+        selectedModule = modules.find(module =>
+            Array.isArray(module.lessons) &&
+            module.lessons.some(lesson =>
+                String(lesson.id) === String(quizLessonId)
+            )
         );
 
-        if (!selectedModule || selectedModule.status === "locked") {
-            alert("This module is locked.");
-            window.location.href = "dashboard.html";
-            return;
+        if (!selectedModule) {
+            throw new Error(
+                "Module containing lesson " + quizLessonId + " was not found."
+            );
         }
 
+        // Find the actual lesson
+        selectedLesson = selectedModule.lessons.find(lesson =>
+            String(lesson.id) === String(quizLessonId)
+        );
+
+        if (!selectedLesson || selectedLesson.status === "locked") {
+            throw new Error("This lesson is locked.");
+        }
+
+        // Find the next lesson in the module sequence
+        const allLessons = modules.flatMap(module =>
+            Array.isArray(module.lessons) ? module.lessons : []
+        );
+
+        const currentIndex = allLessons.findIndex(lesson =>
+            String(lesson.id) === String(quizLessonId)
+        );
+
+        if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
+            nextLesson = allLessons[currentIndex + 1];
+        }
+
+        // Load quiz questions
         questions = await api.getQuestions(quizLessonId);
 
         if (!Array.isArray(questions) || questions.length === 0) {
@@ -49,15 +78,18 @@ async function initializeQuiz() {
         }
 
         document.getElementById("quizTitle").textContent =
-            selectedModule.title + " - Quiz";
+            (selectedLesson.title || selectedModule.title) + " - Quiz";
 
         renderQuestions();
 
     } catch (error) {
-        console.error(error);
+        console.error("Quiz loading error:", error);
 
         document.getElementById("questionCount").textContent =
             "Unable to load quiz: " + error.message;
+
+        document.getElementById("quizMessage").textContent =
+            error.message;
     }
 }
 
@@ -156,11 +188,12 @@ async function submitQuiz() {
     if (!allAnswered) {
         document.getElementById("quizMessage").textContent =
             "Please answer all questions first.";
-
         return;
     }
 
     try {
+        document.getElementById("submitQuizButton").disabled = true;
+
         const result = await api.submitQuiz(
             quizLessonId,
             selectedAnswers
@@ -174,6 +207,8 @@ async function submitQuiz() {
     } catch (error) {
         document.getElementById("quizMessage").textContent =
             "Unable to submit quiz: " + error.message;
+
+        updateSubmitButton();
     }
 }
 
@@ -193,7 +228,7 @@ function showResults(result) {
 
     document.getElementById("resultMessage").textContent =
         result.passed
-            ? "Congratulations! You passed this module."
+            ? "Congratulations! You passed this quiz."
             : "You didn't reach the passing score. Review the explanations and try again.";
 
     const review = document.getElementById("answerReview");
@@ -201,24 +236,39 @@ function showResults(result) {
     review.innerHTML = "";
 
     result.results.forEach((answer, index) => {
+
+        // Find the original question using its ID
+        const originalQuestion = questions.find(question =>
+            String(question.id) === String(answer.question_id)
+        );
+
         const card = document.createElement("div");
         card.className = "answer-review";
 
         const heading = document.createElement("h3");
         heading.textContent =
-            (index + 1) + ". " + answer.question;
+            (index + 1) + ". " +
+            (originalQuestion
+                ? originalQuestion.question
+                : "Question " + answer.question_id);
 
         const selected = document.createElement("p");
         selected.textContent =
-            "Your answer: " + answer.options[answer.selected_option];
+            "Your answer: " +
+            (originalQuestion
+                ? originalQuestion.options[answer.selected_option]
+                : "Not available");
 
         const correct = document.createElement("p");
         correct.textContent =
-            "Correct answer: " + answer.options[answer.correct_option];
+            "Correct answer: " +
+            (originalQuestion
+                ? originalQuestion.options[answer.correct_option]
+                : "Not available");
 
         const explanation = document.createElement("p");
         explanation.textContent =
-            "Explanation: " + answer.explanation;
+            "Explanation: " + (answer.explanation || "No explanation available.");
 
         const status = document.createElement("p");
         status.textContent = answer.is_correct
@@ -241,8 +291,9 @@ function showResults(result) {
     document.getElementById("retryButton").style.display =
         result.passed ? "none" : "inline-block";
 
+    // Show next lesson only if there is another lesson
     document.getElementById("nextModuleButton").style.display =
-        result.passed && Number(quizLessonId) < 3
+        result.passed && nextLesson
             ? "inline-block"
             : "none";
 }
@@ -250,28 +301,32 @@ function showResults(result) {
 
 // 7. RETRY QUIZ
 
-document.getElementById("retryButton").addEventListener("click", function() {
-    selectedAnswers = {};
-    quizSubmitted = false;
-    quizPassed = false;
+document.getElementById("retryButton").addEventListener(
+    "click",
+    function() {
+        selectedAnswers = {};
+        quizSubmitted = false;
+        quizPassed = false;
 
-    document.getElementById("resultsContainer").style.display = "none";
-    document.getElementById("quizContainer").style.display = "block";
+        document.getElementById("resultsContainer").style.display = "none";
+        document.getElementById("quizContainer").style.display = "block";
 
-    document.getElementById("quizMessage").textContent = "";
+        document.getElementById("quizMessage").textContent = "";
 
-    renderQuestions();
-});
+        renderQuestions();
+    }
+);
 
 
-// 8. GO TO NEXT MODULE
+// 8. GO TO NEXT LESSON
 
 document.getElementById("nextModuleButton").addEventListener(
     "click",
     function() {
-        const nextId = Number(quizLessonId) + 1;
-
-        window.location.href = "lesson.html?id=" + nextId;
+        if (nextLesson) {
+            window.location.href =
+                "lesson.html?id=" + nextLesson.id;
+        }
     }
 );
 

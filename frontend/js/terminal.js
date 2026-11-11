@@ -426,7 +426,39 @@ function commandChmod(args) {
 }
 
 
-// 16. COMMAND: HELP
+// ==========================================
+// 16. NEW SYSTEM INFORMATION COMMANDS
+// ==========================================
+
+// Show the current username
+function commandWhoami() {
+    return "user";
+}
+
+// Show user ID, group ID and group membership
+function commandId() {
+    return "uid=1000(user) gid=1000(user) groups=1000(user)";
+}
+
+// Show groups of the current user
+function commandGroups() {
+    return "user";
+}
+
+// Show Linux kernel name
+function commandUname(args) {
+    if (args[0] === "-s") {
+        return "Linux";
+    }
+
+    if (args[0] === "-a") {
+        return "Linux linuxlearn 6.8.0 x86_64 GNU/Linux";
+    }
+
+    return "Linux";
+}
+
+// 17. COMMAND: HELP
 
 function commandHelp() {
     return `Available commands:
@@ -443,12 +475,16 @@ echo Hello          Display text
 echo Hello > a.txt  Write text to a file
 chmod +x file.txt   Add execute permission
 chmod -x file.txt   Remove execute permission
+whoami              Show current username
+id                  Show user and group IDs
+groups              Show user groups
+uname               Show system information
+uname -s            Show kernel name
+uname -a            Show all system information
 clear               Clear terminal
 help                Show this list`;
 }
-
-
-// 17. MAIN COMMAND RUNNER
+// 18. MAIN COMMAND RUNNER
 
 function runCommand(input) {
     const rawCommand = input.trim();
@@ -504,6 +540,22 @@ function runCommand(input) {
             output = commandChmod(args);
             break;
 
+        case "whoami":
+            output = commandWhoami();
+            break;
+
+        case "id":
+            output = commandId();
+            break;
+
+        case "groups":
+            output = commandGroups();
+            break;
+
+        case "uname":
+            output = commandUname(args);
+            break;
+
         case "help":
             output = commandHelp();
             break;
@@ -523,7 +575,7 @@ function runCommand(input) {
 }
 
 
-// 18. CHECK WHETHER THE STUDENT COMPLETED A GOAL
+// 19. CHECK WHETHER THE STUDENT COMPLETED A GOAL
 
 function checkGoal(check) {
     if (!check) {
@@ -575,7 +627,7 @@ function checkGoal(check) {
 }
 
 
-// 19. TERMINAL DISPLAY FUNCTIONS
+// 20. TERMINAL DISPLAY FUNCTIONS
 
 function displayTerminalLine(text, className = "") {
     const output = document.getElementById("terminalOutput");
@@ -602,7 +654,7 @@ function clearTerminalDisplay() {
 }
 
 
-// 20. INITIALIZE TERMINAL
+// 21. INITIALIZE TERMINAL
 
 function initializeTerminal() {
     const form = document.getElementById("terminalForm");

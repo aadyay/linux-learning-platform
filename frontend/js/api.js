@@ -4,7 +4,7 @@
    This is a frontend prototype. It does NOT run real Linux commands.
    ========================================================= */
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 const API_URL = "http://localhost:8000";
 
 async function request(endpoint, options = {}) {
